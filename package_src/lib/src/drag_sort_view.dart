@@ -99,10 +99,10 @@ class DragSortViewState extends State<DragSortView>
   AnimationController _floatController;
 
   /// child positions.
-  List<Rect> _positions = List();
+  List<Rect> _positions = [];
 
   /// cache data.
-  List<DragBean> _cacheData = List();
+  List<DragBean> _cacheData = [];
 
   /// drag child index.
   int _dragIndex = -1;
@@ -172,9 +172,9 @@ class DragSortViewState extends State<DragSortView>
   /// init child size and positions.
   void _init(BuildContext context, EdgeInsets padding, EdgeInsets margin) {
     double space = widget.space;
-    double width = widget.width ??
-        (MediaQuery.of(context).size.width - margin.left - margin.right);
-    width = width - padding.left - padding.right;
+    double width =
+        widget.width ?? (MediaQuery.of(context).size.width - margin.horizontal);
+    width = width - padding.horizontal;
     _itemWidth = (width - space * 2) / 3;
     _positions.clear();
     for (int i = 0; i < 9; i++) {
@@ -222,7 +222,6 @@ class DragSortViewState extends State<DragSortView>
               child: Container(
                 width: _itemWidth + space * _zoomController.value * 2,
                 height: _itemWidth + space * _zoomController.value * 2,
-                color: Colors.redAccent,
                 child: overlay,
               ),
             ));
@@ -351,7 +350,7 @@ class DragSortViewState extends State<DragSortView>
 
   /// build child.
   Widget _buildChild(BuildContext context) {
-    List<Widget> children = List();
+    List<Widget> children = [];
     if (_cacheData.isEmpty) {
       for (int i = 0; i < _itemCount; i++) {
         children.add(
@@ -406,21 +405,17 @@ class DragSortViewState extends State<DragSortView>
 
     int column = (_itemCount > 3 ? 3 : _itemCount + 1);
     int row = ((_itemCount + (_itemCount < 9 ? 1 : 0)) / 3).ceil();
-    double realWidth = _itemWidth * column +
-        widget.space * (column - 1) +
-        padding.left +
-        padding.right;
-    double realHeight = _itemWidth * row +
-        widget.space * (row - 1) +
-        padding.top +
-        padding.bottom;
+    double realWidth =
+        _itemWidth * column + widget.space * (column - 1) + padding.horizontal;
+    double realHeight =
+        _itemWidth * row + widget.space * (row - 1) + padding.vertical;
     double left = margin.left + padding.left;
     double top = margin.top + padding.top;
 
     return GestureDetector(
       onLongPressStart: (LongPressStartDetails details) {
         Offset offset = _getWidgetLocalToGlobal(context);
-        _dragIndex = _getDragIndex(details.localPosition);
+        _dragIndex = _getDragIndex(details.localPosition - Offset(left, top));
         if (_dragIndex == -1) return;
         _initIndex();
         widget.data[_dragIndex].selected = true;
